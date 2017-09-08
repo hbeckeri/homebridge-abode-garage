@@ -1,0 +1,36 @@
+{
+  "name": "homebridge-abode-garage",
+  "version": "0.0.1",
+  "description": "Raspberry Pi Garage Abode Plugin for homebridge",
+  "scripts": {
+    "lint": "scripts/lint.sh"
+  },
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=6.2.2",
+    "homebridge": ">=0.2.0"
+  },
+  "author": {
+    "name": "Harrison Beckerich",
+    "email": "hbeckerich@torchlite.com"
+  },
+  "license": "MIT",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  ],
+  "repository": "https://github.com/hbeckeri/homebridge-abode.git",
+  "dependencies": {
+    "abode-api": "1.0.0",
+    "axios": "0.16.2"
+  },
+  "devDependencies": {
+    "babel-eslint": "7.2.3",
+    "dotenv": "4.0.0",
+    "eslint": "3.19.0"
+  }
+}
