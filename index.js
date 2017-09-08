@@ -6,7 +6,7 @@ let axios = require('axios');
 module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-abode-garage", "Abode Garage", FakeBulbAccessory);
+    homebridge.registerAccessory("homebridge-abode-garage", "Garage", FakeBulbAccessory);
 };
 
 function FakeBulbAccessory(log, config) {
