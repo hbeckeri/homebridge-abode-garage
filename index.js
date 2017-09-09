@@ -35,6 +35,8 @@ AbodeGarageAccessory.prototype.getStatus = function (callback) {
 
             if (device) {
                 let status = device.status === 'Closed' ? Characteristic.CurrentDoorState.CLOSED : Characteristic.CurrentDoorState.OPEN;
+
+                this.garageService.setCharacteristic(Characteristic.CurrentDoorState, status);
                 return callback(null, status);
             }
 
