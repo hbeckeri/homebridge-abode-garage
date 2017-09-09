@@ -6,35 +6,49 @@ let axios = require('axios');
 module.exports = function (homebridge) {
     Service = homebridge.hap.Service;
     Characteristic = homebridge.hap.Characteristic;
-    homebridge.registerAccessory("homebridge-abode-garage", "Garage", FakeBulbAccessory);
+    homebridge.registerAccessory("homebridge-abode-garage", "Garage", AbodeGarageAccessory);
 };
 
-function FakeBulbAccessory(log, config) {
+function AbodeGarageAccessory(log, config) {
+    this.abode = require('abode-api').abode(config.abode.username, config.abode.password);
+    this.doorContactId = config.abode.doorContactId;
     this.relayUrl = config.relayUrl;
     this.log = log;
     this.name = config.name;
-    this.bulbName = config.bulb_name || this.name; // fallback to "name" if you didn't specify an exact "bulb_name"
-    this.binaryState = 0; // bulb state, default is OFF
-    this.log("WUBA: Starting a fake bulb device with name '" + this.bulbName + "'...");
+
+    this.garageService = new Service.GarageDoorOpener(this.name);
+
+    this.garageService
+        .getCharacteristic(Characteristic.TargetDoorState)
+        .on('get', this.getStatus.bind(this))
+        .on('set', this.setStatus.bind(this));
+
+    this.garageService
+        .getCharacteristic(Characteristic.CurrentDoorState)
+        .on('get', this.getStatus.bind(this));
 }
 
-FakeBulbAccessory.prototype.getPowerOn = function (callback) {
-	return callback(null, false);
+AbodeGarageAccessory.prototype.getStatus = function (callback) {
+    this.abode.devices()
+        .then(({ data }) => {
+            let device = data.find(each => each.id === this.doorContactId);
+
+            if (device) {
+                let status = device.status === 'Closed' ? Characteristic.CurrentDoorState.CLOSED : Characteristic.CurrentDoorState.OPEN;
+                return callback(null, status);
+            }
+
+            return callback(null);
+        })
+        .catch(err => callback(null));
 };
 
-FakeBulbAccessory.prototype.setPowerOn = function (powerOn, callback) {
+AbodeGarageAccessory.prototype.setStatus = function (powerOn, callback) {
     return axios.get(this.relayUrl)
         .then(() => callback(null))
         .catch(() => callback(null));
 };
 
-FakeBulbAccessory.prototype.getServices = function () {
-    var lightbulbService = new Service.Lightbulb(this.name);
-
-    lightbulbService
-        .getCharacteristic(Characteristic.On)
-        .on('get', this.getPowerOn.bind(this))
-        .on('set', this.setPowerOn.bind(this));
-
-    return [lightbulbService];
+AbodeGarageAccessory.prototype.getServices = function () {
+    return [this.garageService];
 };
